@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 ### edit job allocation settings here ###
-export tasks=24                       # Number of MPI tasks. No max value, any integer ≥ 1.
+export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
 export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 8 with hyperthreading off.
 export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear along with the job id number from 'squeue'
 export SBATCH_TIMELIMIT=05:00:00      # no max value.
 export vasp_executable="vasp_std"     # which VASP binary to run.
-export SBATCH_MEM_PER_CPU="2500"      # memory-per-CPU.
+export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
 export SBATCH_PARTITION="milan"       # Slurm partition. This will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project allocation to bill job to.
 export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use 'type:0' for CPU only calculation.
@@ -73,7 +73,7 @@ module load VASP/6.4.2-intel-2022a
 
 echo "Job ${SLURM_JOB_ID} was submitted on $(date) from directory $(pwd)" >> ~/VASP_job_log.txt
 
-if [ -n "${SBATCH_GPUS_PER_TASK}" ]; then
+if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
     echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
 fi
 
