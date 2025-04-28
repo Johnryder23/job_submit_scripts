@@ -9,7 +9,7 @@ export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
 export SBATCH_PARTITION="milan"       # Slurm partition. This will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project allocation to bill job to.
-export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use 'type:0' for CPU only calculation.
+export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use '<type>:0' for CPU only calculation.
 ### ===============================  ###
 
 # check working directory name has been provided and print error message if not.
