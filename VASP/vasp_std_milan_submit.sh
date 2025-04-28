@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
 ### edit job allocation settings here ###
-export tasks=12                        # Number of MPI tasks. No max value, any integer ≥ 1.
-export num_threads=14                # Number of CPUs per-MPI-task. Max value of 8 with hyperthreading off.
-export SBATCH_JOB_NAME="john_VASP_single_node"  # job name that will appear along with the job id number from 'squeue'
+export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
+export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 8 with hyperthreading off.
+export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear along with the job id number from 'squeue'
 export SBATCH_TIMELIMIT=05:00:00      # no max value.
 export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
-export SBATCH_PARTITION="genoa4"       # Slurm partition. This will be overridden if GPU(s) are requested.
+export SBATCH_PARTITION="milan"       # Slurm partition. This will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project allocation to bill job to.
 export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use 'type:0' for CPU only calculation.
 ### ===============================  ###
@@ -56,9 +56,15 @@ mkdir ${workdir} && cp $(find . -maxdepth 1 -type f) ${workdir} && cd ${workdir}
 # submit job with 'sbatch'
 sbatch \
 --cpus-per-task=${num_threads} \
+--cores-per-socket=${num_threads} \
+--distribution=*:block:* \
 --ntasks=${tasks} \
+--ntasks-per-socket=1 \
 --threads-per-core=1 \
 --mem-bind=local \
+--switches=1@04:00:00 \
+--profile=task \
+--acctg-freq=15 \
 <<'EOF'
 #!/bin/bash
 
@@ -71,7 +77,7 @@ if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
     echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
 fi
 
-srun --job-name=print_binding_stats -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
+srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 
 echo -e "\n====== Finished printing CPU binding information, now launching ${vasp_executable} ======\n"
 srun -K1 ${vasp_executable}
@@ -103,4 +109,5 @@ EOF
 ## --mem-bind=local      # Use memory local to the processor in use
 ## --switches            # maximum number of leaf switches for the job and the maximum time willing to wait for that number (see output of 'scontrol show topo').
 
-### =============================================
+### ==================================================================================== ###
+
