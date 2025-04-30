@@ -43,9 +43,10 @@ echo "MPI tasks per node:                  $SLURM_TASKS_PER_NODE"
 echo "CPUs per tasks:                      $SLURM_CPUS_PER_TASK"
 echo "partition:                           $SLURM_JOB_PARTITION"
 echo "directory from which sbatch was run: $SLURM_SUBMIT_DIR"
-echo "each band (analogously, orbital) has ${OMP_NUM_THREADS} OpenMP threads, and therefore is worked on by ${OMP_NUM_THREADS} CPU(s)."
+echo "each band (analogously, orbital) has ${OMP_NUM_THREADS} OpenMP threads, and therefore is worked on by ${OMP_NUM_THREADS} CPUs."
 echo -e "=======================================================================================\n\n"
 
+# sometimes the following is needed to supress warning messages
 #export NO_STOP_MESSAGE=1
 
 module purge 2> /dev/null
@@ -53,5 +54,7 @@ module load VASP/6.3.2-NVHPC-22.3-GCC-11.3.0-CUDA-11.6.2
 ###module load VASP/6.2.1-NVHPC-22.3-GCC-11.3.0-CUDA-11.6.2
 
 echo "---- This Job started on $(date) ----"
-srun -K1 vasp_ncl
+srun -K1 vasp_std
 echo "---- This Job finished on $(date) ----"
+
+
