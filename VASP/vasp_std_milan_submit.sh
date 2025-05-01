@@ -26,7 +26,7 @@ if [ -e ${workdir} ]; then
    read -t 15 overwrite
    if [ "${overwrite}" = "y" ]; then
        diff -s ./ ${workdir}
-       echo "Overwriting some of the files in ${workdir} according to the output above."
+       echo "Overwriting files in ${workdir} according to the output above:"
        mkdir -p ${workdir} && find . -maxdepth 1 -type f -exec cp -v '{}' ${workdir} \; && cd ${workdir}
    fi
    if [ "${overwrite}" = "n" ]; then
