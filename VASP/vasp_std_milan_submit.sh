@@ -25,7 +25,6 @@ if [ -e ${workdir} ]; then
    echo "Warning: ${workdir} already exist. Do you want to overwrite it? (y/n):"
    read -t 15 overwrite
    if [ "${overwrite}" = "y" ]; then
-       echo "The following files will be overwritten (if they existed) in ${workdir}"
        diff -s ./ ${workdir}
        echo "Overwriting some of the files in ${workdir} according to the output above."
        mkdir -p ${workdir} && find . -maxdepth 1 -type f -exec cp -v '{}' ${workdir} \; && cd ${workdir}
