@@ -22,12 +22,13 @@ name="$1"
 # check working directory does not already exist.
 workdir=vasp_job_${name}
 if [ -e ${workdir} ]; then
-   echo "Warning: ${workdir} already exist. Do you want to overwrite it? (Y/N):"
+   echo "Warning: ${workdir} already exist. Do you want to overwrite it? (y/n):"
    read -t 15 overwrite
-   if [ "${overwrite}" = "Y" ]; then
+   if [ "${overwrite}" = "y" ]; then
        echo "overwriting some or all files in ${workdir}"
+       mkdir -p ${workdir} && find . -maxdepth 1 -type f -exec cp -v '{}' ${workdir} \; && cd ${workdir}
    fi
-   if [ "${overwrite}" = "N" ]; then
+   if [ "${overwrite}" = "n" ]; then
        echo "Not overwriting ${workdir} and exiting..."
        exit 1
    fi
@@ -49,9 +50,6 @@ else
     echo "ERROR: This script was submitted to Slurm. This is a bash script not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix (string)>'"
     exit 1
 fi
-
-# make working directory and copy all files from current directory there.
-mkdir ${workdir} && cp $(find . -maxdepth 1 -type f) ${workdir} && cd ${workdir}
 
 # submit job with 'sbatch'
 sbatch \
