@@ -23,7 +23,7 @@ name="$1"
 if [ -z "$SLURM_JOB_ID" ]; then
     echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts..."
 else
-    echo "ERROR: This script was submitted to Slurm. This is a bash script not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix (string)>'"
+    echo "ERROR: This script was submitted directly to Slurm. This is a bash script, not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix>'. This script was submitted from directory ${SLURM_SUBMIT_DIR}"
     exit 1
 fi
 
