@@ -17,7 +17,7 @@ if [ -z "$1" ]; then
   echo -e "Error: No working directory name provided. You must provide a working directory name as the first argument after this script.\nFor example 'bash <script_name.sh> <directory_name>'" >&2
   exit 1
 fi
-name="$1"
+workdir="$1"
 
 # check this job script was run by bash and not sbatch
 if [ -z "$SLURM_JOB_ID" ]; then
@@ -37,7 +37,6 @@ if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
 fi
 
 # check working directory does not already exist.
-workdir=vasp_job_${name}
 if [ -e ${workdir} ]; then
    echo "Warning: ${workdir} already exist. Do you want to overwrite it? (y/n):"
    read -t 15 overwrite
