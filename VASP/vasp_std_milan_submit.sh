@@ -21,7 +21,7 @@ name="$1"
 
 # check this job script was run by bash and not sbatch
 if [ -z "$SLURM_JOB_ID" ]; then
-    echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts."
+    echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts..."
 else
     echo "ERROR: This script was submitted to Slurm. This is a bash script not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix (string)>'"
     exit 1
