@@ -21,7 +21,7 @@ workdir="$1"
 
 # check this job script was run by bash and not sbatch
 if [ -z "$SLURM_JOB_ID" ]; then
-    echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts..."
+    echo "Setting up Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory './${workdir}'. '~/VASP_job_log.txt' will be updated once the job starts..."
 else
     echo "ERROR: This script was submitted directly to Slurm. This is a bash script, not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix>'. This script was submitted from directory ${SLURM_SUBMIT_DIR}"
     exit 1
@@ -39,7 +39,7 @@ fi
 # check working directory does not already exist.
 if [ -e ${workdir} ]; then
    echo "Warning: ${workdir} already exist. Do you want to overwrite it? (y/n):"
-   read -t 15 overwrite
+   read overwrite
    if [ "${overwrite}" = "y" ]; then
        diff -s ./ ${workdir}
        echo "Overwriting files in ${workdir} according to the output above:"
