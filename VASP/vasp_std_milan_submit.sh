@@ -19,6 +19,23 @@ if [ -z "$1" ]; then
 fi
 name="$1"
 
+# check this job script was run by bash and not sbatch
+if [ -z "$SLURM_JOB_ID" ]; then
+    echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts."
+else
+    echo "ERROR: This script was submitted to Slurm. This is a bash script not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix (string)>'"
+    exit 1
+fi
+
+# if this is a GPU job set the partition name (required) and check tasks:GPU ratio is 1.
+if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
+    export SBATCH_PARTITION="hgx,gpu"
+    if  [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ] && [ "${tasks}" -ne "${SBATCH_GPUS_PER_TASK##*:}" ]; then
+        echo "Error: Number of MPI tasks (${tasks}) is not equal to the nuumber of GPUs on the node (${SBATCH_GPUS_PER_TASK##*:}). Exiting."
+        exit 1
+    fi
+fi
+
 # check working directory does not already exist.
 workdir=vasp_job_${name}
 if [ -e ${workdir} ]; then
@@ -33,23 +50,8 @@ if [ -e ${workdir} ]; then
        echo "Not overwriting ${workdir} and exiting..."
        exit 1
    fi
-fi
-
-# if this is a GPU job set the partition name (required) and check tasks:GPU ratio is 1.
-if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
-    export SBATCH_PARTITION="hgx,gpu"
-    if  [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ] && [ "${tasks}" -ne "${SBATCH_GPUS_PER_TASK##*:}" ]; then
-        echo "Error: Number of MPI tasks (${tasks}) is not equal to the nuumber of GPUs on the node (${SBATCH_GPUS_PER_TASK##*:}). Exiting."
-        exit 1
-    fi
-fi
-
-# check this job script was run by bash and not sbatch
-if [ -z "$SLURM_JOB_ID" ]; then
-    echo "Starting Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory ${workdir}. '~/VASP_job_log.txt' will be updated once the job starts."
 else
-    echo "ERROR: This script was submitted to Slurm. This is a bash script not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix (string)>'"
-    exit 1
+   mkdir -p ${workdir} && find . -maxdepth 1 -type f -exec cp '{}' ${workdir} \; && cd ${workdir}
 fi
 
 # submit job with 'sbatch'
@@ -82,7 +84,6 @@ echo -e "\n====== Finished printing CPU binding information, now launching ${vas
 srun -K1 ${vasp_executable}
 
 EOF
-
 
 ### ================ Notes on the hardware configuration of Milan nodes ================ ###
 
