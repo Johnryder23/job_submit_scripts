@@ -2,11 +2,11 @@
 
 ### edit job allocation settings here ###
 export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
-export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10 multiple MPI tasks may share a socket.
+export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10, multiple MPI tasks will share a socket.
 export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
 export SBATCH_TIMELIMIT=05:00:00      # Walltime. Max value enforced by Slurm limits.
 export vasp_executable="vasp_std"     # which VASP binary to run.
-export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
+export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
 export SBATCH_PARTITION="genoa2"      # Slurm partition. This will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
 export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use '<type>:0' for CPU only calculation.
