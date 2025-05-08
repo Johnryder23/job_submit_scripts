@@ -94,7 +94,7 @@ EOF
 ## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital is dominated by floating point operations that require quick access to data stored in cache/RAM.
 ## Data locality settings:
 ## --extra-node-info=1:*:*      To ensure your job does not share a socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores and threads available.
-## --distribution=*:block:*     By setting '--distribution=*:block:*' we group tasks as close as possible (block) such that multiple MPI tasks may share a socket as long as cpus-per-task*ntasks < 21 is satisfied. 
+## --distribution=*:block:*     Bind tasks to CPUs on the same socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < 21 is satisfied. 
 ## --threads-per-core=1         Disable hyperthreding. In other words, bind the threads to the physical cores.
 ## --mem-bind=local             Use memory local to the processor in use. The OS should do this anyway but does not hurt to include.
 
