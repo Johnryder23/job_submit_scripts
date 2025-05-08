@@ -1,3 +1,3 @@
 #### VASP
 
-In `vasp_std_submit.sl` you only need to edit values under `### add job allocation settings here ###`.
+In scripts scripts without 'bare_bones' in the title, you only need to edit values under `### add job allocation settings here ###`.
