@@ -6,11 +6,9 @@
 #SBATCH --ntasks=16
 #SBATCH --hint=nomultithread
 #SBATCH --mem-per-cpu=3G
-#SBATCH --partition=large,milan,long
 #SBATCH --output=orca_job_%j/slurm-%j.out
 
 module purge 2>/dev/null
-module use /nesi/nobackup/nesi99999/whitingj/easybuildinstall/CS400_centos7_bdw/modules/all/
 module load ORCA/6.0.1-OpenMPI-4.1.5
 
 INPUT_FILE=input.inp
