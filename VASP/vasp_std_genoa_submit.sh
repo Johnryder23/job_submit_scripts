@@ -75,10 +75,10 @@ if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
     echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
 fi
 
-srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
+#srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 
-echo -e "\n====== Finished printing CPU binding information, now launching ${vasp_executable} ======\n"
-srun -K1 ${vasp_executable}
+#echo -e "\n====== Finished printing CPU binding information, now launching ${vasp_executable} ======\n"
+srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\"" : -K1 ${vasp_executable}
 
 EOF
 
