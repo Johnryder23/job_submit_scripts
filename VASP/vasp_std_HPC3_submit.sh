@@ -7,7 +7,7 @@ export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
 export SBATCH_TIMELIMIT=05:00:00      # Walltime. Max value enforced by Slurm limits.
 export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
-export SBATCH_PARTITION="genoa2"      # Slurm partition. This will be overridden if GPU(s) are requested.
+export SBATCH_PARTITION=""            # Slurm partition. Leave empty unless you have a good reason to specify. Will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
 export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use '<type>:0' for CPU only calculation.
 ### ===============================  ###
@@ -75,27 +75,33 @@ if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
     echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
 fi
 
-#srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
+srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 
-#echo -e "\n====== Finished printing CPU binding information, now launching ${vasp_executable} ======\n"
-srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\"" : -K1 ${vasp_executable}
+echo -e "\n====== Finished printing CPU binding information, now launching ${vasp_executable} ======\n"
+srun -K1 ${vasp_executable}
 
 EOF
 
-### ================ Notes on the hardware configuration of Genoa nodes ================ ###
-
-## Genoa nodes are partitioned into 8 NUMA domains. You can verify the number of NUMA domains by running "srun --partition=genoa2 bash -c 'numactl -H'"
+### ================ Notes on the hardware configuration of NeSI compute nodes ================ ###
+## Genoa
+## Genoa nodes are partitioned into 8 NUMA domains. You can verify the number of NUMA domains by running "srun --partition=genoa numactl -H"
 ## Each NUMA domain has 3 CCDs, 3 memory controllers, and 1 I/O hub.
 ## A Genoa node has:
 ##   8 NUMA domains
-##   1 Slurm socket-per-NUMA-domain
-##   21 physical cores-per-socket.
+##   21 physical cores-per-Slurm socket.
 
-## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital is dominated by floating point operations that require quick access to data stored in cache/RAM.
+## Milan
+## Milan nodes are partitioned into 8 NUMA domains. You can verify the number of NUMA domains by running "srun --partition=milan numactl -H"
+## Each NUMA domain has 3 CCDs, 3 memory controllers, and 1 I/O hub.
+## A Milan node has:
+##   8 NUMA domains
+##   16 physical cores-per-Slurm socket.
+
+## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital are dominated by floating point operations which require quick access to data stored in cache/RAM.
 ## Data locality settings:
-## --extra-node-info=1:*:*      To ensure your job does not share a socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores and threads available.
-## --distribution=*:block:*     Bind tasks to CPUs on the same socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < 21 is satisfied. 
-## --threads-per-core=1         Disable hyperthreding. In other words, bind the threads to the physical cores.
+## --extra-node-info=1:*:*      To ensure your job does not share a Slurm socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores and threads available.
+## --distribution=*:block:*     Bind tasks to CPUs on the same Slurm socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < physical cores-per-Slurm socket. 
+## --threads-per-core=1         Disable hyperthreding. In other words, don't let cores appear to have two CPUs.
 ## --mem-bind=local             Use memory local to the processor in use. The OS should do this anyway but does not hurt to include.
 
 ### ==================================================================================== ###
