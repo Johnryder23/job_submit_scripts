@@ -36,8 +36,8 @@ if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
     fi
 fi
 
-if [ -z "${partition}" ]; then
-    export SBATCH_PARTITION=${partition}
+if [ -n "${partition}" ]; then
+    export SBATCH_PARTITION=${partition}
 fi
 
 # check working directory does not already exist.
