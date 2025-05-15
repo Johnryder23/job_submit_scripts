@@ -29,17 +29,16 @@ fi
 
 # if this is a GPU job set the partition name (required) and check MPI tasks:GPU ratio is 1.
 if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
-    export SBATCH_PARTITION="hgx,gpu"
-    gpu_count="${SBATCH_GPUS_PER_TASK##*:}"
-    if [ "${gpu_count}" -gt 0 ] && [ "${tasks}" -ne "${gpu_count}" ]; then
-        echo "Error: Number of MPI tasks (${tasks}) must equal number of GPUs (${gpu_count}). Exiting."
-        exit 1
-    fi
+    export SBATCH_PARTITION="hgx,gpu"
+    gpu_count="${SBATCH_GPUS_PER_TASK##*:}"
+    if [ "${gpu_count}" -gt 0 ] && [ "${tasks}" -ne "${gpu_count}" ]; then
+        echo "Error: Number of MPI tasks (${tasks}) must equal number of GPUs (${gpu_count}). Exiting."
+        exit 1
+    fi
 fi
 
-
 if [ -n "${partition}" ]; then
-    export SBATCH_PARTITION=${partition}
+    export SBATCH_PARTITION=${partition}
 fi
 
 # check working directory does not already exist.
