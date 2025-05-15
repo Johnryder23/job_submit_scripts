@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-### edit job settings here ###
+### edit job allocation settings here ###
 export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
 export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10, multiple MPI tasks will share a socket.
 export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
@@ -36,6 +36,7 @@ if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
         exit 1
     fi
 fi
+
 
 if [ -n "${partition}" ]; then
     export SBATCH_PARTITION=${partition}
@@ -105,7 +106,7 @@ EOF
 ## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital are dominated by floating point operations which require quick access to data stored in cache/RAM.
 ## Data locality settings:
 ## --extra-node-info=1:*:*      To ensure your job does not share a Slurm socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores and threads available.
-## --distribution=*:block:*     Bind tasks to CPUs on the same Slurm socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < physical cores-per-Slurm socket. 
+## --distribution=*:block:*     Bind tasks to CPUs on the same Slurm socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < physical cores-per-Slurm socket.
 ## --threads-per-core=1         Disable hyperthreding. In other words, don't let cores appear to have two CPUs.
 ## --mem-bind=local             Use memory local to the processor in use. The OS should do this anyway but does not hurt to include.
 
