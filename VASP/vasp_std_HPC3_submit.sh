@@ -9,7 +9,7 @@ export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
 export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify. Will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
-export SBATCH_GPUS_PER_TASK="A100:0"  # type and number of GPUs used in the job. Use '<type>:0' for CPU only calculation.
+export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only.
 ### ===============================  ###
 
 # check working directory name has been provided and print error message if not.
@@ -27,14 +27,16 @@ else
     exit 1
 fi
 
-# if this is a GPU job set the partition name (required) and check tasks:GPU ratio is 1.
-if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
-    export SBATCH_PARTITION="hgx,gpu"
-    if  [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ] && [ "${tasks}" -ne "${SBATCH_GPUS_PER_TASK##*:}" ]; then
-        echo "Error: Number of MPI tasks (${tasks}) is not equal to the nuumber of GPUs on the node (${SBATCH_GPUS_PER_TASK##*:}). Exiting."
-        exit 1
-    fi
+# if this is a GPU job set the partition name (required) and check MPI tasks:GPU ratio is 1.
+if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
+    export SBATCH_PARTITION="hgx,gpu"
+    gpu_count="${SBATCH_GPUS_PER_TASK##*:}"
+    if [ "${gpu_count}" -gt 0 ] && [ "${tasks}" -ne "${gpu_count}" ]; then
+        echo "Error: Number of MPI tasks (${tasks}) must equal number of GPUs (${gpu_count}). Exiting."
+        exit 1
+    fi
 fi
+
 
 if [ -n "${partition}" ]; then
     export SBATCH_PARTITION=${partition}
@@ -43,7 +45,7 @@ fi
 # check working directory does not already exist.
 if [ -e ${workdir} ]; then
    echo "Warning: ${workdir} already exist. Do you want to overwrite it? (y/n):"
-   read overwrite
+   read -r overwrite
    if [ "${overwrite}" = "y" ]; then
        diff -sq ./ ${workdir}
        echo "Copying the following files to ${workdir} (and possibly overwriting them in line with output above):"
