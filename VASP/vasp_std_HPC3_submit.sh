@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-### edit job allocation settings here ###
+### edit job settings here ###
 export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
 export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10, multiple MPI tasks will share a socket.
 export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
