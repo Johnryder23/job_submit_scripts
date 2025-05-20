@@ -3,7 +3,7 @@
 #SBATCH --ntasks=21
 #SBATCH --cpus-per-task=4
 #SBATCH --job-name=my_VASP_job
-#SBATCH --timelimit=01:00:00
+#SBATCH --time=01:00:00
 #SBATCH --mem-per-cpu=950
 #SBATCH --account=nesi99999
 #SBATCH --extra-node-info=1:*:*     # Restrict node selection to nodes with at least 1 completely free socket.
