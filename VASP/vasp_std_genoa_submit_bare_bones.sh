@@ -1,18 +1,19 @@
 #!/bin/bash -e
 
-#SBATCH --ntasks=7
-#SBATCH --cpus-per-task=3
+#SBATCH --ntasks=21
+#SBATCH --cpus-per-task=4
 #SBATCH --job-name=my_VASP_job
 #SBATCH --timelimit=01:00:00
 #SBATCH --mem-per-cpu=950
 #SBATCH --account=nesi99999
-#SBATCH --partition=genoa2
 #SBATCH --extra-node-info=1:*:*     # Restrict node selection to nodes with at least 1 completly free socket.
 #SBATCH --distribution=*:block:*    # Bind tasks to CPUs on the same socket, and fill that socket before moving to the next consecutive socket.
 #SBATCH --threads-per-core=1        # Turn simultaneous multithreading (hyperthreading) off.
 #SBATCH --mem-bind=local
 #SBATCH --profile=task
 #SBATCH --acctg-freq=15
+
+## There is less reasons to specify `#SBATCH --partition` on the new HPC. Please only set this if you have a good reason to use Genoa or Milan nodes.
 
 module purge 2> /dev/null
 module load VASP/6.4.2-foss-2023a
@@ -24,7 +25,6 @@ echo "Job ${SLURM_JOB_ID} was submitted on $(date) from directory $(pwd)" >> ~/V
 srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 echo -e "\n====== Finished printing CPU binding information, now launching VASP ======\n"
 srun -K1 vasp_std
-
 
 
 ### ================ Notes on the hardware configuration of Genoa nodes ================ ###
