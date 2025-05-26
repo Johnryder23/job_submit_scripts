@@ -13,7 +13,7 @@
 #SBATCH --profile=task
 #SBATCH --acctg-freq=15
 
-## There are few reasons to specify `#SBATCH --partition` on the new HPC. Please only set this if you have a good reason to use Genoa or Milan nodes.
+## There are not so many reasons to set a partition with `#SBATCH --partition` on the new HPC. Please only set this if you have a good reason to use Genoa or Milan nodes.
 
 module purge 2> /dev/null
 module load VASP/6.4.2-foss-2023a
