@@ -32,16 +32,17 @@ srun -K1 vasp_std
 ## Each NUMA domain has 3 CCDs, 3 memory controllers, and 1 I/O hub.
 ## A Genoa node has:
 ##   8 NUMA domains
-##   21 physical cores-per-Slurm socket.
+##   21 physical cores per NUMA domain.
 
 ## Milan
 ## Milan nodes are partitioned into 8 NUMA domains. You can verify the number of NUMA domains by running "srun --partition=milan numactl -H"
 ## Each NUMA domain has 3 CCDs, 3 memory controllers, and 1 I/O hub.
 ## A Milan node has:
 ##   8 NUMA domains
-##   16 physical cores-per-Slurm socket.
+##   16 physical cores per NUMA domain.
 
 ## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital are dominated by floating point operations which require quick access to data stored in cache/RAM.
+## Note!!! Slurm socket = NUMA domain. i.e, they are set the the same size in the Slurm config.
 ## Data locality settings:
 ## --extra-node-info=1:*:*      To ensure your job does not share a Slurm socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores and threads available.
 ## --distribution=*:block:*     Bind tasks to CPUs on the same Slurm socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < physical cores-per-Slurm socket.
