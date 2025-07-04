@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 ### edit job allocation settings here ###
-export tasks=10                       # Number of MPI tasks. No max value, any integer ≥ 1.
-export num_threads=8                  # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10, multiple MPI tasks will share a socket.
+export tasks=4                        # Number of MPI tasks. No max value, any integer ≥ 1.
+export num_threads=21                 # Number of CPUs per-MPI-task. Max value of 21 with hyperthreading off. If less than 10, multiple MPI tasks will share a socket.
 export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
 export SBATCH_TIMELIMIT=05:00:00      # Walltime. Max value enforced by Slurm limits.
 export vasp_executable="vasp_std"     # which VASP binary to run.
-export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
+export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
 export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
 export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs.
@@ -15,7 +15,7 @@ export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" 
 workdir="$1"
 
 # check this job script was run by bash and not sbatch
-if [ -n "$SLURM_JOB_ID" ]; then
+if [ -z "${SLURM_JOB_ID}" ]; then
     echo "Setting up a Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory './${workdir}'. '~/VASP_job_log.txt' will be updated once the job starts..."
 else
     echo "ERROR: This script was submitted directly to Slurm. This is a bash script, not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix>'."
@@ -82,7 +82,7 @@ if [ -n "${SBATCH_GPUS_PER_TASK}" ]; then
    if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
        echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
    fi
-fi                                                                                                                                                                            
+fi
 
 srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 
