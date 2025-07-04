@@ -12,13 +12,6 @@ export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
 export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs.
 ### ===============================  ###
 
-# check working directory name has been provided and print error message if not.
-if [ -z "$1" ]; then
-  echo -e "Error: No working directory name provided. You must provide a working directory name as the first argument after this script.\nFor example 'bash <script_name.sh> <directory_name>'" >&2
-  exit 1
-fi
-workdir="$1"
-
 # check this job script was run by bash and not sbatch
 if [ -z "$SLURM_JOB_ID" ]; then
     echo "Setting up Slurm job with ${tasks} MPI tasks and ${num_threads} threads-per-task in directory './${workdir}'. '~/VASP_job_log.txt' will be updated once the job starts..."
@@ -26,6 +19,14 @@ else
     echo "ERROR: This script was submitted directly to Slurm. This is a bash script, not Slurm script. Submit this script with 'bash <script_name.sh> <working directory suffix>'. This script was submitted from directory ${SLURM_SUBMIT_DIR}"
     exit 1
 fi
+
+# check working directory name has been provided and print error message if not.
+if [ -z "$1" ]; then
+  echo -e "Error: No working directory name provided. You must provide a working directory name as the first argument after this script.\nFor example 'bash <script_name.sh> <directory_name>'" >&2
+  exit 1
+fi
+workdir="$1"
+
 
 # if this is a GPU job set the partition name (required) and check MPI tasks:GPU ratio is 1.
 if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
