@@ -9,7 +9,7 @@ export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
 export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify. Will be overridden if GPU(s) are requested.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
-export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only.
+export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs.
 ### ===============================  ###
 
 # check working directory name has been provided and print error message if not.
