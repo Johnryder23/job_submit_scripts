@@ -28,7 +28,6 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-
 # if this is a GPU job check MPI tasks:GPU ratio is 1.
 if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
     gpu_count="${SBATCH_GPUS_PER_TASK##*:}"
@@ -38,7 +37,7 @@ if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
     fi
 fi
 
-
+# set partition if defined
 if [ -n "${partition}" ]; then
     export SBATCH_PARTITION=${partition}
 fi
