@@ -7,7 +7,7 @@ export SBATCH_JOB_NAME="my_VASP_job"  # job name that will appear in the queue.
 export SBATCH_TIMELIMIT=05:00:00      # Walltime. Max value enforced by Slurm limits.
 export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="1000"      # memory-per-CPU.
-export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify. Will be overridden if GPU(s) are requested.
+export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
 export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs.
 ### ===============================  ###
@@ -29,9 +29,8 @@ if [ -z "$1" ]; then
 fi
 
 
-# if this is a GPU job set the partition name (required) and check MPI tasks:GPU ratio is 1.
+# if this is a GPU job check MPI tasks:GPU ratio is 1.
 if [[ "${SBATCH_GPUS_PER_TASK}" != "none" ]]; then
-    export SBATCH_PARTITION="hgx,gpu"
     gpu_count="${SBATCH_GPUS_PER_TASK##*:}"
     if [ "${gpu_count}" -gt 0 ] && [ "${tasks}" -ne "${gpu_count}" ]; then
         echo "Error: Number of MPI tasks (${tasks}) must equal number of GPUs (${gpu_count}). Exiting."
