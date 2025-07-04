@@ -77,9 +77,11 @@ module load VASP/6.4.2-foss-2023a
 
 echo "Job ${SLURM_JOB_ID} was submitted on $(date) from directory $(pwd)" >> ~/VASP_job_log.txt
 
-if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
-    echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
-fi
+if [ -n "${SBATCH_GPUS_PER_TASK}" ]; then
+   if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
+       echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
+   fi
+fi                                                                                                                                                                            
 
 srun --job-name=print_binding_stats bash -c "echo -e \"Task #\${SLURM_PROCID} is running on node \$(hostname). \n\$(hostname) has the following NUMA configuration:\n\$(lscpu | grep -i --color=none numa)\nTask #\${SLURM_PROCID} has \$(nproc) CPUs, their core IDs are \$(taskset -c -p \$\$ | awk '{print \$NF}')\n===========================================\""
 
