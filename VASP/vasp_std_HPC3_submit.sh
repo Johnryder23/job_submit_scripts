@@ -9,7 +9,7 @@ export vasp_executable="vasp_std"     # which VASP binary to run.
 export SBATCH_MEM_PER_CPU="2000"      # memory-per-CPU.
 export partition=""                   # Slurm partition. Leave empty unless you have a good reason to specify.
 export SBATCH_ACCOUNT="nesi99999"     # NeSI project to bill job to.
-export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs.
+export SBATCH_GPUS_PER_TASK="none"    # Set to "<type>:<count>", e.g., "A100:1" for GPU jobs, or "none" for CPU-only jobs. Cannot be unset, must stay as "none" if no GPUs are needed.
 ### ===============================  ###
 
 workdir="$1"
@@ -77,9 +77,8 @@ module load VASP/6.4.2-foss-2023a
 
 echo "Job ${SLURM_JOB_ID} was submitted on $(date) from directory $(pwd)" >> ~/VASP_job_log.txt
 
-if [ -n "${SBATCH_GPUS_PER_TASK}" ]; then
-   if [ "${SBATCH_GPUS_PER_TASK##*:}" -gt 0 ]; then
-       echo -e "GPUs used is this job are \n$(nvidia-smi -L)\n"
+if [ "${SBATCH_GPUS_PER_TASK}" != "none" ]; then
+   echo -e "GPUs used in this job are \n$(nvidia-smi -L)\n"
    fi
 fi
 
