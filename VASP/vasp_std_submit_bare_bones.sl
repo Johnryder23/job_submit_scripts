@@ -6,7 +6,7 @@
 #SBATCH --time=01:00:00
 #SBATCH --mem-per-cpu=950
 #SBATCH --account=nesi99999
-#SBATCH --extra-node-info=1:*:*     # Restrict node selection to nodes with at least 1 completely free socket.
+#SBATCH --extra-node-info=1:*:1     # Restrict node selection to nodes with at least 1 completely free socket and turn off simultaneous multithreading (hyperthreading).
 #SBATCH --distribution=*:block:*    # Bind tasks to CPUs on the same socket, and fill that socket before moving to the next consecutive socket.
 #SBATCH --threads-per-core=1        # Turn off simultaneous multithreading (hyperthreading).
 #SBATCH --mem-bind=local
