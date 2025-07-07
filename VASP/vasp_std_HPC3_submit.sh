@@ -106,7 +106,7 @@ EOF
 ## We want all cpus-per-task (i.e., threads of a rank) to share a NUMA domain as this improves data locality between CPUs. This is critically important given optimization (and related FFTs) of a particular orbital are dominated by floating point operations which require quick access to data stored in cache/RAM.
 ## Note!!! Slurm socket = NUMA domain. i.e, they are set the the same size in the Slurm config.
 ## Data locality settings:
-## --extra-node-info=1:*:1      To ensure your job does not share a Slurm socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores available. 1 thread is assigned per-core such that simultaneous hyperthreding is disabled.
+## --extra-node-info=1:*:1      To ensure your job does not share a Slurm socket with other jobs we restrict node selection to nodes with at least 1 socket that has all (*) cores available. 1 thread is assigned per-core such that simultaneous multithreading is disabled.
 ## --distribution=*:block:*     Bind tasks to CPUs on the same Slurm socket, and fill that socket before moving to the next consecutive socket. Multiple tasks will share a socket as long as cpus-per-task*ntasks < physical cores-per-Slurm socket.
 ## --mem-bind=local             Use memory local to the processor in use. The OS should do this anyway but does not hurt to include.
 
